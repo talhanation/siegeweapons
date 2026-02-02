@@ -311,6 +311,8 @@ public class CatapultEntity extends AbstractInventoryVehicleEntity implements IS
 
             case COBBLE_SHOT -> {
                 projectile = new CatapultCobbleProjectile(this.getCommandSenderWorld(), driverEntity, this.getX(), this.getY() + 3.75, this.getZ());
+
+                projectile.setOwner(this);
             }
 
             case FIRE_SHOT -> {
@@ -345,7 +347,6 @@ public class CatapultEntity extends AbstractInventoryVehicleEntity implements IS
     public void playShootSound() {
         this.playSound(ModSounds.CATAPULT_SHOT.get(), 5F, 0.8F + 0.4F * this.random.nextFloat());
     }
-
 
     private int lastPlayedPhase = -1;
     public void playLoadedSound() {
@@ -412,7 +413,7 @@ public class CatapultEntity extends AbstractInventoryVehicleEntity implements IS
     }
 
     public float getCalcRange() {
-        float range = (float) (getRange() * SiegeWeaponsServerConfig.catapultMaxRange.get()/100);
+        float range = getRange();
         return 1.5F + 2.0F * range * 0.01F;
     }
 

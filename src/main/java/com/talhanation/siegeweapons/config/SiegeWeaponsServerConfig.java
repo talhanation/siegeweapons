@@ -17,7 +17,6 @@ public class SiegeWeaponsServerConfig {
     public static ForgeConfigSpec SERVER;
 
     public static ForgeConfigSpec.DoubleValue catapultHealth;
-    public static ForgeConfigSpec.DoubleValue catapultMaxRange;
     public static ForgeConfigSpec.DoubleValue catapultCobbleClusterDamage;
     public static ForgeConfigSpec.DoubleValue catapultCobbleDamage;
     public static ForgeConfigSpec.DoubleValue catapultCobbleDestruction;
@@ -36,14 +35,6 @@ public class SiegeWeaponsServerConfig {
                         \tdefault: 600""")
                 .worldRestart()
                 .defineInRange("catapultHealth", 600D, 0, 1453);
-
-        catapultMaxRange = BUILDER.comment("""
-                        
-                        The max. range a catapult can shoot in percent.
-                        \t(takes effect after restart)
-                        \tdefault: 100""")
-                .worldRestart()
-                .defineInRange("catapultMaxRange", 100D, 0, 100);
 
         catapultCobbleDamage = BUILDER.comment("""
                         
