@@ -4,6 +4,7 @@
     "1.20.1-recommended": "0.2.1"
   },
   "1.20.1": {
+    "0.2.2": "Initial beta release of siegeweapons, fixed villagers do not take jobs",
     "0.2.1": "Initial beta release of siegeweapons, fixed performance and crafting",
     "0.2.0": "Initial alpha release of siegeweapons"
   }
