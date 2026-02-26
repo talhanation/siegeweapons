@@ -11,6 +11,7 @@ import com.talhanation.siegeweapons.init.*;
 import com.talhanation.siegeweapons.network.*;
 import de.maxhenkel.corelib.CommonRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,9 +34,14 @@ import org.apache.logging.log4j.Logger;
 @Mod(Main.MOD_ID)
 public class Main {
     public static final String MOD_ID = "siegeweapons";
-    public static SimpleChannel SIMPLE_CHANNEL;
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-
+    public static final String PROTOCOL_VERSION = "1";
+    public static final SimpleChannel SIMPLE_CHANNEL = NetworkRegistry.newSimpleChannel(
+            new ResourceLocation(MOD_ID, "main"),
+            () -> PROTOCOL_VERSION,
+            PROTOCOL_VERSION::equals,
+            PROTOCOL_VERSION::equals
+    );
     public Main() {
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -71,13 +78,10 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new UpdateChecker());
         MinecraftForge.EVENT_BUS.register(this);
 
-        SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MOD_ID, "default");
-
         Class[] messages = {
                 MessageUpdateVehicleControl.class,
                 MessageLoadAndShootWeapon.class,
                 MessageUpdateSiegeTable.class,
-                MessageToClientUpdateSiegeTableEntity.class,
                 MessageSetCatapultRange.class,
                 MessageOpenGUI.class,
                 MessageTryLoadFromHand.class

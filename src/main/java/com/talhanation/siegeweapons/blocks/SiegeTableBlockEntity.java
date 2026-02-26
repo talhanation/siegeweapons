@@ -1,15 +1,14 @@
 package com.talhanation.siegeweapons.blocks;
 
-import com.talhanation.siegeweapons.Main;
 import com.talhanation.siegeweapons.SiegeWeapons;
 import com.talhanation.siegeweapons.entities.BallistaEntity;
 import com.talhanation.siegeweapons.entities.CatapultEntity;
 import com.talhanation.siegeweapons.init.ModBlockEntityTypes;
 import com.talhanation.siegeweapons.inventory.SiegeTableMenu;
-import com.talhanation.siegeweapons.network.MessageToClientUpdateSiegeTableEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,7 +20,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -112,6 +110,23 @@ public class SiegeTableBlockEntity extends BaseContainerBlockEntity {
     public void clearContent() {
     }
 
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    }
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
     public void startCrafting(int id) {
         if(level != null && this.level.isClientSide()) return;
 
@@ -182,16 +197,23 @@ public class SiegeTableBlockEntity extends BaseContainerBlockEntity {
     public void serverTick() {
         if (isCrafting) {
             progressTimer++;
+
             if (progressTimer >= finishTime) {
                 finishCrafting();
+                sync();
+                return;
+            }
+
+            if (progressTimer % 10 == 0) {
+                sync();
             }
         }
-        syncToClient();
     }
 
-    public void syncToClient() {
+    private void sync() {
         if (level != null && !level.isClientSide) {
-            Main.SIMPLE_CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)), new MessageToClientUpdateSiegeTableEntity(this));
+            setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 }
