@@ -82,14 +82,21 @@ public class CatapultEntity extends AbstractInventoryVehicleEntity implements IS
     @Override
     public void tick() {
         super.tick();
-        if(--shootCoolDown > 0) return;
+
         updateLoaderRotation();
         updateAngleRotation();
 
+        if(tickCount % 20 == 0){
+            if(isTriggering() && getControllingPassenger() == null){
+                setTriggering(false);
+            }
+        }
+
+        //SHOOTING
+        if(--shootCoolDown > 0) return;
         float angle = getAngle();
         CatapultState state = getState();
         boolean trigger = this.isTriggering();
-
 
 
         if(trigger && (state == CatapultState.LOADING || state == CatapultState.SHOT)){

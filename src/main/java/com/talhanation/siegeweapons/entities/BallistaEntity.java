@@ -66,24 +66,29 @@ public class BallistaEntity extends AbstractInventoryVehicleEntity implements IS
     @Override
     public void tick() {
         super.tick();
+        if(tickCount % 20 == 0){
+            if(isTriggering() && getControllingPassenger() == null){
+                setTriggering(false);
+            }
+        }
+
+        updateDriverTurnControl();
+        updateLoaderRotation();
+
+        //SHOOTING
         if(--shootCoolDown > 0) return;
         if(isTriggering() && getState() == BallistaState.UNLOADED){
             playLoadingSound();
             if(++loadingTime >= 100){
                 loadingTime = 0;
                 setState(BallistaState.LOADED);
-                return;
             }
         }
 
         if(this.isTriggering() && getState() == BallistaState.PROJECTILE_LOADED){
             setState(BallistaState.UNLOADED);
             shootWeapon();
-            return;
         }
-
-        updateDriverTurnControl();
-        updateLoaderRotation();
     }
 
     public void tryLoadFromHand(Player player) {

@@ -89,7 +89,6 @@ public abstract class AbstractVehicleEntity extends Entity {
 
     @Override
     public void tick() {
-
         if (!getCommandSenderWorld().isClientSide()) {
             this.xo = getX();
             this.yo = getY();
@@ -106,6 +105,17 @@ public abstract class AbstractVehicleEntity extends Entity {
         this.control(driver, xRot, yRot);
         move(MoverType.SELF, getDeltaMovement());
         updateWheelRotation();
+
+        if(tickCount % 20 == 0){
+            updateFireState();
+        }
+
+    }
+
+    private void updateFireState() {
+        if(wasOnFire){
+            clearFire();
+        }
     }
 
     private void updatePush() {
