@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -52,7 +53,7 @@ public class BallistaRenderer extends EntityRenderer<BallistaEntity> {
         poseStack.translate(0.0D, translation, 0.0D);
 
         // Update the ballista model's rotation
-        float pitch = entity.xRotO + partialTicks * (entity.getXRot() - entity.xRotO);
+        float pitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
         this.model.setCrossBowRotation(entity.isForward() || entity.isBackward(), pitch, entityYaw);
         this.model.setupAnim(entity, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
 
@@ -61,9 +62,18 @@ public class BallistaRenderer extends EntityRenderer<BallistaEntity> {
         this.model.renderToBuffer(poseStack, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
         if(entity.getShowTrajectory()){
-            Vec3 forward = new Vec3(Math.sin(Math.toRadians(entity.getYRot())), 0, Math.cos(Math.toRadians(entity.getYRot())));
+            float yaw = Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot());
 
-            List<Vec3> trajectory = calculateTrajectory(forward, -Math.toRadians(entity.getXRot()), entity.projectileSpeed, 3000, 0, 0.15);
+            double yawRad = Math.toRadians(yaw);
+            double pitchRad = Math.toRadians(pitch);
+
+            Vec3 forward = new Vec3(
+                    Math.sin(yawRad),
+                    0,
+                    Math.cos(yawRad)
+            );
+
+            List<Vec3> trajectory = calculateTrajectory(forward, -pitchRad, entity.projectileSpeed, 3000, 0, 0.15);
             // Render the trajectory line
             VertexConsumer lineVertexConsumer = multiBufferSource.getBuffer(RenderType.LINES);
             renderBallistaTrajectory(poseStack, lineVertexConsumer, trajectory, 1.0f, 0.0f, 0.0f, 100.0f); // Red line
@@ -72,24 +82,33 @@ public class BallistaRenderer extends EntityRenderer<BallistaEntity> {
         poseStack.popPose();
     }
     public static List<Vec3> calculateTrajectory(Vec3 forward, double yShootVec, float initialVelocity, int steps, double heightOffset, double lateralOffset) {
+
         List<Vec3> trajectory = new ArrayList<>();
 
-        double timeStep = 1.0 / 20.0;
-        double gravityPerTick = -0.06;
+        double gravityPerTick = 0.06;
 
-        Vec3 direction = new Vec3(forward.x, yShootVec, forward.z).normalize().scale(-1);
+        // ORIGINAL Verhalten beibehalten
+        Vec3 direction = new Vec3(forward.x, yShootVec, forward.z)
+                .normalize()
+                .scale(-1);
 
-        Vec3 side = new Vec3(-forward.z, 0, forward.x).normalize().scale(lateralOffset);
+        Vec3 side = new Vec3(-forward.z, 0, forward.x)
+                .normalize()
+                .scale(lateralOffset);
+
+        Vec3 velocity = direction.scale(initialVelocity);
+
+        // Start exakt wie vorher bei t=0
+        Vec3 pos = Vec3.ZERO;
 
         for (int i = 0; i < steps; i++) {
-            double t = i * timeStep;
 
-            double dx = direction.x * initialVelocity * t;
-            double dy = direction.y * initialVelocity * t - 0.5 * gravityPerTick * t * t;
-            double dz = direction.z * initialVelocity * t;
+            // Punkt VOR Bewegung hinzufügen (wie t=0 Fall)
+            trajectory.add(pos.add(side).add(0, heightOffset, 0));
 
-            Vec3 point = new Vec3(dx, dy + heightOffset, dz).add(side);
-            trajectory.add(point);
+            // Dann Tick-Simulation
+            pos = pos.add(velocity);
+            velocity = velocity.add(0, gravityPerTick, 0);
         }
 
         return trajectory;
