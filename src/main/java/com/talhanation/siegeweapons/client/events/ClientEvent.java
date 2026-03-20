@@ -33,6 +33,8 @@ public class ClientEvent {
         EntityRenderers.register(ModEntityTypes.FIRE_POT_PROJECTILE.get(),  (ctx) -> {context = ctx;  return new FirePotProjectileRenderer(ctx, false);});
         EntityRenderers.register(ModEntityTypes.BALLISTA.get(), (ctx) -> {context = ctx;  return new BallistaRenderer(ctx);});
         EntityRenderers.register(ModEntityTypes.BALLISTA_PROJECTILE.get(), (ctx) -> {context = ctx;  return new BallistaProjectileRenderer(ctx);});
+        EntityRenderers.register(ModEntityTypes.TRANSPORT_CART.get(), (ctx) -> {context = ctx; return new TransportCartRenderer(ctx);});
+        EntityRenderers.register(ModEntityTypes.SMALL_HORSE_CART.get(), (ctx) -> {context = ctx; return new SmallHorseCartRenderer(ctx);});
     }
 
     @Nullable

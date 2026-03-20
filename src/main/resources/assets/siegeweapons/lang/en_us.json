@@ -3,6 +3,7 @@
   "entity.siegeweapons.cart" : "Cart",
   "entity.siegeweapons.transportCart" : "Transport Cart",
   "entity.siegeweapons.ballista" : "Ballista",
+  "entity.siegeweapons.small_horse_cart" : "Small Horse Cart",
 
   "item.siegeweapons.ballista_item" : "Ballista Item",
   "item.siegeweapons.catapult_item" : "Catapult Item",
@@ -10,6 +11,7 @@
   "item.siegeweapons.explosion_pot_item" : "Explosion Pot Shot",
   "item.siegeweapons.fire_pot_item" : "Fire Pot Shot",
   "item.siegeweapons.cobble_cluster_item" : "Cobble Cluster Shot",
+  "item.siegeweapons.small_horse_cart_item" : "Small Horse Cart",
 
   "block.siegeweapons.siege_table_block" : "Siege Table",
 
@@ -22,7 +24,8 @@
   "tips.siegeweapons.catapult_change_range" : "Change Range",
   "tips.siegeweapons.ballista_reload" : "Reload",
 
+  "entity.siegeweapons.small_horse_cart.horse_attached" : "Horse attached to cart",
+  "entity.siegeweapons.small_horse_cart.horse_detached" : "Horse detached from cart",
+
   "itemGroup.siegeweapons.siegeweapons_tab" : "Siege Weapons Tab"
-
-
 }

@@ -3,6 +3,7 @@ package com.talhanation.siegeweapons.init;
 import com.talhanation.siegeweapons.Main;
 import com.talhanation.siegeweapons.entities.BallistaEntity;
 import com.talhanation.siegeweapons.entities.CatapultEntity;
+import com.talhanation.siegeweapons.entities.SmallHorseCartEntity;
 import com.talhanation.siegeweapons.entities.TransportCartEntity;
 import com.talhanation.siegeweapons.entities.projectile.*;
 import net.minecraft.resources.ResourceLocation;
@@ -34,6 +35,13 @@ public class ModEntityTypes {
                     .sized(3.0F, 3.0F)
                     .clientTrackingRange(10)
                     .build(new ResourceLocation(Main.MOD_ID, "transport_cart").toString()));
+
+    public static final RegistryObject<EntityType<SmallHorseCartEntity>> SMALL_HORSE_CART = ENTITY_TYPES.register("small_horse_cart",
+            () -> EntityType.Builder.of(SmallHorseCartEntity::new, MobCategory.MISC)
+                    .sized(2.5F, 1.5F)
+                    .clientTrackingRange(10)
+                    .build(new ResourceLocation(Main.MOD_ID, "small_horse_cart").toString()));
+
 //PROJECTILES
     public static final RegistryObject<EntityType<CatapultCobbleProjectile>> CATAPULT_PROJECTILE = ENTITY_TYPES.register("catapult_projectile",
             () -> EntityType.Builder.of(CatapultCobbleProjectile::factory, MobCategory.MISC)
