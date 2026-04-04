@@ -41,6 +41,14 @@ public class BallistaEntity extends AbstractInventoryVehicleEntity implements IS
     private int loadingTime;
     private boolean showTrajectory;
     private int shootCoolDown;
+
+    // ========================= NPC CONTROL =========================
+    public boolean npcPitchUp = false;
+    public boolean npcPitchDown = false;
+    public boolean npcTurnLeft = false;
+    public boolean npcTurnRight = false;
+    public float npcTurnSpeed = 0.5F;
+
     public BallistaEntity(EntityType<? extends AbstractInventoryVehicleEntity> entityType, Level world) {
         super(entityType, world);
     }
@@ -107,20 +115,61 @@ public class BallistaEntity extends AbstractInventoryVehicleEntity implements IS
     }
 
     public void updateDriverTurnControl() {
-        if(getControllingPassenger() != null){
-            LivingEntity driver = getControllingPassenger();
+        if(getControllingPassenger() instanceof Player player){
 
             float xRot = getControllingPassenger().getXRot();
             xRot = Mth.clamp(xRot, -40, 40);
 
-            float yRot = driver.getYRot();
+            float yRot = player.getYRot();
 
             this.setXRot(xRot);
             this.setYRot(yRot);
-            driver.setYRot(yRot);
+            player.setYRot(yRot);
 
             setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
         }
+
+        if(getControllingPassenger() instanceof LivingEntity){
+            updateNpcAimControl();
+        }
+    }
+
+    private void updateNpcAimControl() {
+        float xRot = this.getXRot();
+        float yRot = this.getYRot();
+
+        if(npcPitchUp){
+            xRot = Math.max(xRot - npcTurnSpeed, -40);
+        }
+        if(npcPitchDown){
+            xRot = Math.min(xRot + npcTurnSpeed, 40);
+        }
+
+        if(npcTurnRight){
+            yRot += npcTurnSpeed;
+        }
+
+        if(npcTurnLeft){
+            yRot -= npcTurnSpeed;
+        }
+
+        this.setXRot(xRot);
+        this.setYRot(yRot);
+    }
+    public void setTurnSpeed(float speed){
+        this.npcTurnSpeed = speed;
+    }
+    public void setTurnRight(boolean turnRight) {
+        this.npcTurnRight = turnRight;
+    }
+    public void setTurnLeft(boolean turnLeft) {
+        this.npcTurnLeft = turnLeft;
+    }
+    public void setPitchUp(boolean pitchUp) {
+        this.npcPitchUp = pitchUp;
+    }
+    public void setPitchDown(boolean pitchDown) {
+        this.npcPitchDown = pitchDown;
     }
 
     public void setState(BallistaState state) {
