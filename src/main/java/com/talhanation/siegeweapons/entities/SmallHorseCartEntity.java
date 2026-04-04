@@ -187,9 +187,12 @@ public class SmallHorseCartEntity extends AbstractInventoryVehicleEntity {
         AbstractHorse horse = getAttachedHorse();
         if (horse != null) {
             horse.setYRot(newYRot);
-            horse.yBodyRot = newYRot;
+            horse.yBodyRot = newYRot + steering/2;
             horse.yHeadRot = newYRot + steering;   // Kopf = Körper + Lenkwinkel
             horse.setXRot(0F);
+            horse.setIsJumping(false);
+            horse.setTemper(0);
+            horse.setSpeed(speed);
         }
 
         setDeltaMovement(
@@ -362,7 +365,7 @@ public class SmallHorseCartEntity extends AbstractInventoryVehicleEntity {
     }
 
     @Override public int      getMaxPassengerSize() { return 2; }
-    @Override public int      getMaxSpeedInKmH()    { return 12; }
-    @Override public double   getMaxHealth()        { return 150; }
+    @Override public int      getMaxSpeedInKmH()    { return 22; }
+    @Override public double   getMaxHealth()        { return 250; }
     @Override public Component getVehicleTypeName() { return ModTexts.SMALL_HORSE_CART; }
 }
