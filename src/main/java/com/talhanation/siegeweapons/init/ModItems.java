@@ -19,5 +19,5 @@ public class ModItems {
 
     public static final RegistryObject<CatapultItem> CATAPULT_ITEM = ITEMS.register("catapult_item", () -> new CatapultItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<BallistaItem> BALLISTA_ITEM = ITEMS.register("ballista_item", () -> new BallistaItem(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<SmallHorseCartItem> SMALL_HORSE_CART_ITEM = ITEMS.register("small_horse_cart_item", () -> new SmallHorseCartItem(new Item.Properties().stacksTo(1)));
+    //public static final RegistryObject<SmallHorseCartItem> SMALL_HORSE_CART_ITEM = ITEMS.register("small_horse_cart_item", () -> new SmallHorseCartItem(new Item.Properties().stacksTo(1)));
 }
