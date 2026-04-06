@@ -111,16 +111,34 @@ public class BallistaProjectile extends AbstractArrow {
     @Override
     protected void onHitEntity(@NotNull EntityHitResult hitResult) {
         if (!this.level().isClientSide()) {
+
             Entity hitEntity = hitResult.getEntity();
             Entity ownerEntity = this.getOwner();
             if(ownerEntity == null) return;
 
+
+            boolean isCanceled = false;
+
             if(hitEntity.isVehicle()){
-                if(hitEntity.getControllingPassenger() != null && ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity.getControllingPassenger()) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
+                if(hitEntity.getControllingPassenger() != null && ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity.getControllingPassenger()) && !ownerEntity.getTeam().isAllowFriendlyFire())
+                    isCanceled = true;
             }
-            else if (ownerEntity instanceof LivingEntity) {
-                if (ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity) && !ownerEntity.getTeam().isAllowFriendlyFire())
-                    return;
+            else if (ownerEntity instanceof LivingEntity && ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity) && !ownerEntity.getTeam().isAllowFriendlyFire()){
+                    isCanceled = true;
+            }
+
+            if(isCanceled){
+                this.setDeltaMovement(this.getDeltaMovement().scale(-0.1D));
+                this.setYRot(this.getYRot() + 180.0F);
+                this.yRotO += 180.0F;
+                if (!this.level().isClientSide && this.getDeltaMovement().lengthSqr() < 1.0E-7D) {
+                    if (this.pickup == AbstractArrow.Pickup.ALLOWED) {
+                        this.spawnAtLocation(this.getPickupItem(), 0.1F);
+                    }
+
+                    this.discard();
+                }
+                return;
             }
         }
         super.onHitEntity(hitResult);
