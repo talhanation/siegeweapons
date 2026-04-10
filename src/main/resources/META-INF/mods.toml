@@ -8,11 +8,11 @@ loaderVersion="[47,)" #mandatory This is typically bumped every Minecraft versio
 
 modId="siegeweapons"
 
-version="0.2.4"
+version="0.2.5"
 
 displayName="Siege Weapons Mod"
 updateJSONURL="https://raw.githubusercontent.com/talhanation/siegeweapons/main/update.json"
-displayURL="https://modrinth.com/mod/siege-weapons/versions"
+displayURL="https://modrinth.com/mod/siegeweapons/versions"
 
 logoFile="logo.png"
 
