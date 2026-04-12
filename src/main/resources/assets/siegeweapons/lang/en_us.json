@@ -4,6 +4,7 @@
   "entity.siegeweapons.transportCart" : "Transport Cart",
   "entity.siegeweapons.ballista" : "Ballista",
   "entity.siegeweapons.small_horse_cart" : "Small Horse Cart",
+  "entity.siegeweapons.battering_ram" : "Battering Ram",
 
   "item.siegeweapons.ballista_item" : "Ballista Item",
   "item.siegeweapons.catapult_item" : "Catapult Item",
@@ -12,6 +13,7 @@
   "item.siegeweapons.fire_pot_item" : "Fire Pot Shot",
   "item.siegeweapons.cobble_cluster_item" : "Cobble Cluster Shot",
   "item.siegeweapons.small_horse_cart_item" : "Small Horse Cart",
+  "item.siegeweapons.battering_ram" : "Battering Ram",
 
   "block.siegeweapons.siege_table_block" : "Siege Table",
 

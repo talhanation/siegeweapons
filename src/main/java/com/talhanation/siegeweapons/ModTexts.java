@@ -14,6 +14,7 @@ public class ModTexts {
     public static Component CRAFT = Component.translatable("gui.siegeweapons.craft");
     public static Component BALLISTA = Component.translatable("entity.siegeweapons.ballista");
     public static Component SMALL_HORSE_CART = Component.translatable("entity.siegeweapons.small_horse_cart");
+    public static Component BATTERING_RAM = Component.translatable("entity.siegeweapons.battering_ram");
 
     public static Component BALLISTA_BOLT = Component.translatable("item.siegeweapons.ballista_projectile_item");
     public static Component SIEGE_WEAPON_TABLE = Component.translatable("gui.siegeweapons.siegewapontable");

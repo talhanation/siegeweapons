@@ -1,10 +1,7 @@
 package com.talhanation.siegeweapons.init;
 
 import com.talhanation.siegeweapons.Main;
-import com.talhanation.siegeweapons.entities.BallistaEntity;
-import com.talhanation.siegeweapons.entities.CatapultEntity;
-import com.talhanation.siegeweapons.entities.SmallHorseCartEntity;
-import com.talhanation.siegeweapons.entities.TransportCartEntity;
+import com.talhanation.siegeweapons.entities.*;
 import com.talhanation.siegeweapons.entities.projectile.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -42,7 +39,13 @@ public class ModEntityTypes {
                     .clientTrackingRange(10)
                     .build(new ResourceLocation(Main.MOD_ID, "small_horse_cart").toString()));
 
-//PROJECTILES
+    public static final RegistryObject<EntityType<BatteringRamEntity>> BATTERING_RAM = ENTITY_TYPES.register("battering_ram",
+            () -> EntityType.Builder.<BatteringRamEntity>of(BatteringRamEntity::new, MobCategory.MISC)
+                    .sized(4.5F, 2.5F)
+                    .clientTrackingRange(10)
+                    .build(new ResourceLocation(Main.MOD_ID, "battering_ram").toString()));
+
+    // PROJECTILES
     public static final RegistryObject<EntityType<CatapultCobbleProjectile>> CATAPULT_PROJECTILE = ENTITY_TYPES.register("catapult_projectile",
             () -> EntityType.Builder.of(CatapultCobbleProjectile::factory, MobCategory.MISC)
                     .sized(0.85F, 0.85F)
@@ -75,5 +78,4 @@ public class ModEntityTypes {
                     .sized(0.85F, 0.85F)
                     .clientTrackingRange(3)
                     .build(new ResourceLocation(Main.MOD_ID, "ballista_projectile").toString()));
-
 }
