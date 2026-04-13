@@ -106,7 +106,7 @@ public class BatteringRamModel<T extends BatteringRamEntity> extends EntityModel
 		wheelsFront.xRot = entity.getWheelRotation(partialTicks);
 		wheelsBack.xRot = wheelsFront.xRot;
 
-		//TODO: ram.xRot = entity.getRamRotation(partialTicks);
+		ram.xRot = -entity.getRamAngle(partialTicks);
 	}
 
 	@Override

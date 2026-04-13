@@ -31,9 +31,11 @@ public class BatteringRamRenderer extends EntityRenderer<BatteringRamEntity> {
     public void render(BatteringRamEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
 
-        poseStack.translate(0D, -0.3D, 0D);
+        poseStack.translate(0.0D, -0.25D, 0.0D);
         poseStack.mulPose(Axis.YP.rotationDegrees(180F - entityYaw));
         poseStack.scale(-1.3F, -1.3F, 1.3F);
+
+        poseStack.translate(0.0D, -1.7D,-0.5D);
 
         this.model.setupAnim(entity, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
 

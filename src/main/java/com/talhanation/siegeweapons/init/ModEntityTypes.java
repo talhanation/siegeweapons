@@ -41,7 +41,7 @@ public class ModEntityTypes {
 
     public static final RegistryObject<EntityType<BatteringRamEntity>> BATTERING_RAM = ENTITY_TYPES.register("battering_ram",
             () -> EntityType.Builder.<BatteringRamEntity>of(BatteringRamEntity::new, MobCategory.MISC)
-                    .sized(4.5F, 2.5F)
+                    .sized(3.5F, 2.5F)
                     .clientTrackingRange(10)
                     .build(new ResourceLocation(Main.MOD_ID, "battering_ram").toString()));
 

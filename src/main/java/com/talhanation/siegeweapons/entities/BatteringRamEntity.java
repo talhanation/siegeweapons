@@ -10,7 +10,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -19,17 +21,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class BatteringRamEntity extends AbstractVehicleEntity implements IShootingWeapon {
+public class BatteringRamEntity extends AbstractInventoryVehicleEntity implements IShootingWeapon {
 
     // ── Synced Data ────────────────────────────────────────────────────────────
 
-    /** Aktueller Winkel des Rammbalkens in Radiant. Negativ = zurückgezogen, Positiv = vorne. */
     private static final EntityDataAccessor<Float>   RAM_ANGLE  = SynchedEntityData.defineId(BatteringRamEntity.class, EntityDataSerializers.FLOAT);
-    /** Ladezustand 0.0 – 1.0 (wird beim Schaden-Berechnen genutzt). */
+
     private static final EntityDataAccessor<Float>   CHARGE     = SynchedEntityData.defineId(BatteringRamEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> STATE      = SynchedEntityData.defineId(BatteringRamEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> TRIGGERING = SynchedEntityData.defineId(BatteringRamEntity.class, EntityDataSerializers.BOOLEAN);
@@ -61,6 +63,7 @@ public class BatteringRamEntity extends AbstractVehicleEntity implements IShooti
     private LivingEntity lastDriver;
     private int chargeTime = 0;
     private boolean impactDealt = false; // Schaden nur einmal pro Schlag austeilen
+    private float prevRamAngle = 0F;     // für partialTick-Interpolation (client-seitig)
 
     public BatteringRamEntity(EntityType<? extends BatteringRamEntity> entityType, Level world) {
         super(entityType, world);
@@ -98,6 +101,8 @@ public class BatteringRamEntity extends AbstractVehicleEntity implements IShooti
     @Override
     public void tick() {
         super.tick();
+
+        prevRamAngle = getRamAngle(); // vor dem return speichern – läuft auf Client & Server
 
         if (getCommandSenderWorld().isClientSide()) return; // Logik nur server-seitig
 
@@ -214,8 +219,8 @@ public class BatteringRamEntity extends AbstractVehicleEntity implements IShooti
             target.setDeltaMovement(target.getDeltaMovement().add(knockback));
         }
 
-        // Block-Schaden: Blöcke direkt vor dem Ram beschädigen/zerstören
-        if (charge > 0.5F) {
+        // Block-Schaden: nur bei voller Aufladung
+        if (charge >= 1.0F) {
             applyBlockDamage(forward, charge);
         }
 
@@ -230,8 +235,8 @@ public class BatteringRamEntity extends AbstractVehicleEntity implements IShooti
     private void applyBlockDamage(Vec3 forward, float charge) {
         Level level = this.getCommandSenderWorld();
 
-        // Blöcke in einem kleinen Bereich vor dem Ram zerstören
-        int range = charge > 0.8F ? 2 : 1;
+        // range=1 – leicht weniger als vorher (kein range=2 mehr)
+        int range = 1;
         BlockPos centerPos = BlockPos.containing(
                 this.getX() + forward.x * (HIT_REACH + 0.5),
                 this.getY() + 1,
@@ -245,8 +250,8 @@ public class BatteringRamEntity extends AbstractVehicleEntity implements IShooti
                     var state = level.getBlockState(pos);
                     float hardness = state.getDestroySpeed(level, pos);
 
-                    // Nur Blöcke mit mittlerer Härte (keine Obsidian etc.)
-                    if (!state.isAir() && hardness >= 0 && hardness < (2.0F + charge * 3.0F)) {
+                    // Härteschwelle fest auf 2.5 (z.B. Holz/Stein ja, Obsidian nein)
+                    if (!state.isAir() && hardness >= 0 && hardness < 2.5F) {
                         level.destroyBlock(pos, true, lastDriver);
                     }
                 }
@@ -323,24 +328,49 @@ public class BatteringRamEntity extends AbstractVehicleEntity implements IShooti
     }
 
     @Override
-    public void setShowTrajectory(boolean v) { this.showTrajectory = v; }
+    public void setShowTrajectory(boolean v){
+        this.showTrajectory = v;
+    }
 
     @Override
-    public boolean getShowTrajectory() { return showTrajectory; }
+    public boolean getShowTrajectory(){
+        return showTrajectory;
+    }
 
     // ─── GETTER / SETTER ──────────────────────────────────────────────────────
 
-    public float getRamAngle()  { return entityData.get(RAM_ANGLE); }
-    public void  setRamAngle(float a) { entityData.set(RAM_ANGLE, a); }
+    public float getRamAngle() {
+        return entityData.get(RAM_ANGLE);
+    }
+    public void  setRamAngle(float a){
+        entityData.set(RAM_ANGLE, a);
+    }
 
-    public float getCharge()    { return entityData.get(CHARGE); }
-    public void  setCharge(float c) { entityData.set(CHARGE, c); }
+    /** Interpolierte Variante für smooth client-seitige Animation. */
+    public float getRamAngle(float partialTicks) {
+        return Mth.lerp(partialTicks, prevRamAngle, getRamAngle());
+    }
 
-    public boolean isTriggering()   { return entityData.get(TRIGGERING); }
-    public void    setTriggering(boolean t) { entityData.set(TRIGGERING, t); }
+    public float getCharge()   {
+        return entityData.get(CHARGE);
+    }
+    public void  setCharge(float c){
+        entityData.set(CHARGE, c);
+    }
 
-    public RamState getState()  { return RamState.fromIndex(entityData.get(STATE)); }
-    public void     setState(RamState s) { entityData.set(STATE, s.getIndex()); }
+    public boolean isTriggering()  {
+        return entityData.get(TRIGGERING);
+    }
+    public void setTriggering(boolean t){
+        entityData.set(TRIGGERING, t);
+    }
+
+    public RamState getState(){
+        return RamState.fromIndex(entityData.get(STATE));
+    }
+    public void setState(RamState s){
+        entityData.set(STATE, s.getIndex());
+    }
 
     // ─── PASSENGERS ───────────────────────────────────────────────────────────
 
@@ -354,19 +384,42 @@ public class BatteringRamEntity extends AbstractVehicleEntity implements IShooti
     @Override
     public Vec3 getDriverPosition() {
         double f = -2.0F;
-        double d = -0.5F;
+        double d = -0.75F;
         return new Vec3(f, 0D, d).yRot(-this.getYRot() * (float)(Math.PI / 180F) - (float)(Math.PI / 2F));
     }
 
     @Override
-    public double getPassengersRidingOffset() { return 0.5D; }
+    public double getPassengersRidingOffset() {
+        return 0.0D;
+    }
 
     // ─── ABSTRACT IMPL ────────────────────────────────────────────────────────
 
-    @Override public int      getMaxPassengerSize() { return 1; }
-    @Override public int      getMaxSpeedInKmH()    { return 8; }
-    @Override public double   getMaxHealth()        { return 1000D; }
-    @Override public Component getVehicleTypeName() { return ModTexts.BATTERING_RAM; }
+    @Override
+    public void openGUI(Player player) {
+        if (player instanceof ServerPlayer sp) {
+            NetworkHooks.openScreen(sp, new SimpleMenuProvider(
+                    (id, inv, p) -> new com.talhanation.siegeweapons.inventory.VehicleInventoryMenu(id, this, inv),
+                    this.getDisplayName()
+            ), buf -> buf.writeUUID(this.getUUID()));
+        } else {
+            Main.SIMPLE_CHANNEL.sendToServer(
+                    new com.talhanation.siegeweapons.network.MessageOpenGUI(this));
+        }
+    }
+
+    @Override public int getMaxPassengerSize(){
+        return 1;
+    }
+    @Override public int getMaxSpeedInKmH(){
+        return 10;
+    }
+    @Override public double getMaxHealth(){
+        return 1000D;
+    }
+    @Override public Component getVehicleTypeName(){
+        return ModTexts.BATTERING_RAM;
+    }
 
     // ─── STATE ENUM ───────────────────────────────────────────────────────────
 
@@ -377,8 +430,12 @@ public class BatteringRamEntity extends AbstractVehicleEntity implements IShooti
         COOLDOWN(3);
 
         private final int index;
-        RamState(int i) { this.index = i; }
-        public int getIndex() { return index; }
+        RamState(int i){
+            this.index = i;
+        }
+        public int getIndex(){
+            return index;
+        }
 
         public static RamState fromIndex(int x) {
             for (RamState s : values()) if (s.index == x) return s;
