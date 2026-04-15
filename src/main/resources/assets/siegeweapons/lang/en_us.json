@@ -5,6 +5,7 @@
   "entity.siegeweapons.ballista" : "Ballista",
   "entity.siegeweapons.small_horse_cart" : "Small Horse Cart",
   "entity.siegeweapons.battering_ram" : "Battering Ram",
+  "entity.siegeweapons.siege_tower": "Siege Tower",
 
   "item.siegeweapons.ballista_item" : "Ballista Item",
   "item.siegeweapons.catapult_item" : "Catapult Item",
@@ -25,9 +26,12 @@
   "tips.siegeweapons.vehicle_load_shoot" : "Load and Shoot",
   "tips.siegeweapons.catapult_change_range" : "Change Range",
   "tips.siegeweapons.ballista_reload" : "Reload",
+  "tips.siegeweapons.siege_tower_deploy": "Deploy Ramp",
 
   "entity.siegeweapons.small_horse_cart.horse_attached" : "Horse attached to cart",
   "entity.siegeweapons.small_horse_cart.horse_detached" : "Horse detached from cart",
+
+
 
   "itemGroup.siegeweapons.siegeweapons_tab" : "Siege Weapons Tab"
 }

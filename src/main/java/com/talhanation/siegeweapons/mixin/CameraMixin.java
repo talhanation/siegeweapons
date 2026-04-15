@@ -1,6 +1,8 @@
 package com.talhanation.siegeweapons.mixin;
 
 import com.talhanation.siegeweapons.entities.BallistaEntity;
+import com.talhanation.siegeweapons.entities.IShootingWeapon;
+import com.talhanation.siegeweapons.entities.SiegeTowerEntity;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.util.Mth;
@@ -48,6 +50,29 @@ public abstract class CameraMixin {
 
                 ci.cancel();
             }
+            else if(player.getVehicle() instanceof SiegeTowerEntity siegeTower && siegeTower.getShowTrajectory()){
+                double x = Mth.lerp(partialTicks, siegeTower.xo, siegeTower.getX());
+                double y = Mth.lerp(partialTicks, siegeTower.yo, siegeTower.getY());
+                double z = Mth.lerp(partialTicks, siegeTower.zo, siegeTower.getZ());
+
+                float yaw = Mth.rotLerp(partialTicks, siegeTower.yRotO, siegeTower.getYRot());
+                float pitch = Mth.lerp(partialTicks, siegeTower.xRotO, siegeTower.getXRot());
+
+                double yawRad = Math.toRadians(yaw);
+
+                Vec3 rotatedOffset = new Vec3(
+                        -Math.sin(yawRad) * 0.15,
+                        1.6,
+                        Math.cos(yawRad) * 0.15
+                );
+
+                this.position = new Vec3(x, y + 7.5, z).add(rotatedOffset);
+                this.xRot = pitch;
+                this.yRot = yaw;
+
+                ci.cancel();
+            }
         }
+
     }
 }

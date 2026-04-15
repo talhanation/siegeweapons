@@ -45,6 +45,12 @@ public class ModEntityTypes {
                     .clientTrackingRange(10)
                     .build(new ResourceLocation(Main.MOD_ID, "battering_ram").toString()));
 
+    public static final RegistryObject<EntityType<SiegeTowerEntity>> SIEGE_TOWER = ENTITY_TYPES.register("siege_tower",
+            () -> EntityType.Builder.<SiegeTowerEntity>of(SiegeTowerEntity::new, MobCategory.MISC)
+                    .sized(3.5F, 11.0F)
+                    .clientTrackingRange(12)
+                    .build(new ResourceLocation(Main.MOD_ID, "siege_tower").toString()));
+
     // PROJECTILES
     public static final RegistryObject<EntityType<CatapultCobbleProjectile>> CATAPULT_PROJECTILE = ENTITY_TYPES.register("catapult_projectile",
             () -> EntityType.Builder.of(CatapultCobbleProjectile::factory, MobCategory.MISC)

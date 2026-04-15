@@ -5,6 +5,7 @@ import com.talhanation.siegeweapons.client.TipManager;
 import com.talhanation.siegeweapons.entities.AbstractVehicleEntity;
 import com.talhanation.siegeweapons.entities.BallistaEntity;
 import com.talhanation.siegeweapons.entities.CatapultEntity;
+import com.talhanation.siegeweapons.entities.SiegeTowerEntity;
 import com.talhanation.siegeweapons.entities.SmallHorseCartEntity;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -31,8 +32,7 @@ public class ClientRenderEvents {
 
     @SubscribeEvent
     public void onRenderHand(RenderHandEvent event) {
-        if (Minecraft.getInstance().player.getVehicle() instanceof BallistaEntity ballista
-                && ballista.getShowTrajectory()) {
+        if (Minecraft.getInstance().player.getVehicle() instanceof BallistaEntity ballista && ballista.getShowTrajectory()) {
             event.setCanceled(true);
         }
     }
@@ -101,12 +101,20 @@ public class ClientRenderEvents {
             );
             mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
 
-        } else if (vehicle instanceof BallistaEntity) {
+        }
+        else if (vehicle instanceof BallistaEntity) {
             tips = List.of(
                     Component.literal("[" + aim + " + " + ModTexts.BALLISTA_BOLT.getString() + "] - ").append(ModTexts.BALLISTA_RELOAD),
                     Component.literal("[" + loadShoot + "] - ").append(ModTexts.VEHICLE_LOAD_SHOOT),
                     Component.literal("[" + aim + "] - ").append(ModTexts.VEHICLE_AIM)
             );
+
+        }
+        else if (vehicle instanceof SiegeTowerEntity) {
+            tips = List.of(
+                    Component.literal("[" + loadShoot + "] - ").append(ModTexts.SIEGE_TOWER_DEPLOY)
+            );
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
         }
 
         if (player.level().isClientSide() && tips != null) {
@@ -120,6 +128,15 @@ public class ClientRenderEvents {
     @OnlyIn(Dist.CLIENT)
     public void onClientTick(TickEvent.ClientTickEvent event) {
         TipManager.tick();
+
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && mc.player.getVehicle() instanceof SiegeTowerEntity tower && tower.isIdealPosition() && !tower.isRampDeployed()) {
+            String jump = mc.options.keyJump.getTranslatedKeyMessage().getString();
+            TipManager.showTips(List.of(
+                    Component.literal("[" + jump + "] - ").append(ModTexts.SIEGE_TOWER_DEPLOY)
+            ));
+        }
     }
 
     @SubscribeEvent

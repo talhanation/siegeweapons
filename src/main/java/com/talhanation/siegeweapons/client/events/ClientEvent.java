@@ -35,6 +35,7 @@ public class ClientEvent {
         EntityRenderers.register(ModEntityTypes.TRANSPORT_CART.get(),          (ctx) -> { context = ctx; return new TransportCartRenderer(ctx); });
         EntityRenderers.register(ModEntityTypes.SMALL_HORSE_CART.get(),        (ctx) -> { context = ctx; return new SmallHorseCartRenderer(ctx); });
         EntityRenderers.register(ModEntityTypes.BATTERING_RAM.get(),           (ctx) -> { context = ctx; return new BatteringRamRenderer(ctx); });
+        EntityRenderers.register(ModEntityTypes.SIEGE_TOWER.get(),             (ctx) -> { context = ctx; return new SiegeTowerRenderer(ctx); });
     }
 
     @Nullable
