@@ -39,8 +39,8 @@ public class SiegeTowerEntity extends AbstractInventoryVehicleEntity implements 
     private static final float RAMP_RATE      = -RAMP_MAX_ANGLE / (7 * 20);
 
     /** Höhe der Ebenen über dem Boden in Blöcken. Anpassbar. */
-    private static final float FLOOR_1_HEIGHT = 0.65F;
-    private static final float FLOOR_2_HEIGHT = FLOOR_1_HEIGHT + 3.00F;
+    private static final float FLOOR_1_HEIGHT = 0.80F;
+    private static final float FLOOR_2_HEIGHT = FLOOR_1_HEIGHT + 2.85F;
     private static final float FLOOR_3_HEIGHT = FLOOR_2_HEIGHT + 3.00F;
     private static final float FLOOR_4_HEIGHT = FLOOR_3_HEIGHT + 3.00F;
 

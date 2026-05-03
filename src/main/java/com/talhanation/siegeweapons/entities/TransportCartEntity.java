@@ -77,4 +77,10 @@ public class TransportCartEntity extends AbstractInventoryVehicleEntity {
             moveFunction.accept(rider, this.getX() + vec.x, this.getY(), this.getZ() + vec.z);
         }
     }
+
+    @Override
+    public boolean shouldRiderSit() {
+
+        return false;
+    }
 }

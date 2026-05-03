@@ -3,7 +3,6 @@ package com.talhanation.siegeweapons.client.events;
 
 import com.talhanation.siegeweapons.Main;
 import com.talhanation.siegeweapons.client.render.*;
-import com.talhanation.siegeweapons.entities.BallistaEntity;
 import com.talhanation.siegeweapons.init.ModEntityTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

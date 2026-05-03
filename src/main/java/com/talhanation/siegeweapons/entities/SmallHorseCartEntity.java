@@ -97,18 +97,18 @@ public class SmallHorseCartEntity extends AbstractInventoryVehicleEntity {
 
         float cartSpeed = Math.abs(getSpeed());
 
-        // deltaMovement am Pferd für Sound-Logik setzen
         if (cartSpeed > 0.005F) {
             horse.setDeltaMovement(
                     Kalkuel.calculateMotionX(cartSpeed, this.getYRot()),
                     0D,
                     Kalkuel.calculateMotionZ(cartSpeed, this.getYRot())
             );
-        } else {
+        }
+        else {
             horse.setDeltaMovement(Vec3.ZERO);
         }
 
-        // Hufschlag-Sound
+                
         if (!getCommandSenderWorld().isClientSide() && cartSpeed > 0.005F && this.onGround()) {
             int interval = Math.max(8, (int) (22 - cartSpeed * 80));
             if (tickCount % interval == 0) {
@@ -126,80 +126,58 @@ public class SmallHorseCartEntity extends AbstractInventoryVehicleEntity {
 
     // ─── CONTROL ──────────────────────────────────────────────────────────────
 
-    /**
-     * Lenkung mit Aufbau/Abbau-Mechanik:
-     *
-     *  • Links-Taste  → steeringAngle sinkt (richtung –MAX_STEERING)
-     *  • Rechts-Taste → steeringAngle steigt (richtung +MAX_STEERING)
-     *  • Keine Taste  → steeringAngle kehrt graduell zu 0 zurück
-     *
-     *  Die Cart-Drehrate pro Tick = steeringAngle * STEER_TO_TURN
-     *  Der Pferde-Kopf zeigt in Richtung steeringAngle (sichtbarer Lenkindikator).
-     */
     @Override
     public void control(Entity driver, float xRot, float yRot) {
-        if (driver == null || !hasAttachedHorse()) {
+        if (driver == null || !driver.isAlive() || !hasAttachedHorse()) {
             setSpeed(Kalkuel.subtractToZero(getSpeed(), 0.002F));
             setSteeringAngle(Kalkuel.subtractToZero(getSteeringAngle(), RETURN_RATE));
             setForward(false);
             setBackward(false);
-            setDeltaMovement(
-                    Kalkuel.calculateMotionX(getSpeed(), this.getYRot()),
-                    getDeltaMovement().y,
-                    Kalkuel.calculateMotionZ(getSpeed(), this.getYRot())
-            );
+            setDeltaMovement(Kalkuel.calculateMotionX(getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(getSpeed(), this.getYRot()));
             return;
         }
 
-        // ── Geschwindigkeit (persistent, kein Roll-Widerstand beim Fahren) ───
         float maxSpeed = getMaxSpeedInKmH() / (60F * 1.15F);
         float speed = getSpeed();
 
-        if (isForward())  speed = Math.min(speed + 0.008F, maxSpeed);
-        if (isBackward()) speed = Math.max(speed - 0.006F, 0F);
+        if (isForward())
+            speed = Math.min(speed + 0.008F, maxSpeed);
+
+        if (isBackward())
+            speed = Math.max(speed - 0.006F, 0F);
 
         setSpeed(speed);
 
-        // ── Lenkwinkel aufbauen / abbauen ─────────────────────────────────────
         float steering = getSteeringAngle();
 
         if (isLeft()) {
             steering = Math.max(steering - INPUT_RATE, -MAX_STEERING);
-        } else if (isRight()) {
+        }
+        else if (isRight()) {
             steering = Math.min(steering + INPUT_RATE, MAX_STEERING);
-        } else {
-            // Lenkung kehrt zu Geradeaus zurück
-            if (steering > 0f)      steering = Math.max(0f, steering - RETURN_RATE);
-            else if (steering < 0f) steering = Math.min(0f, steering + RETURN_RATE);
+        }
+        else {
+            if (steering > 0f)
+                steering = Math.max(0f, steering - RETURN_RATE);
+            else if (steering < 0f)
+                steering = Math.min(0f, steering + RETURN_RATE);
         }
 
         setSteeringAngle(steering);
 
-        // ── Cart-Rotation proportional zum Lenkwinkel ─────────────────────────
         float newYRot = this.getYRot() + steering * STEER_TO_TURN;
         this.setYRot(newYRot);
         this.setXRot(0F);
 
-        // ── Pferd: Körper folgt Cart, Kopf zeigt Lenkrichtung ─────────────────
-        // yHeadRot wird auch hier gesetzt (server-side sync für andere Spieler).
-        // Zusätzlich setzt ClientRenderEvents.onRenderLivingPre die Werte
-        // kurz vor dem Render-Call – das eliminiert Sync-Latenz vollständig.
         AbstractHorse horse = getAttachedHorse();
         if (horse != null) {
             horse.setYRot(newYRot);
             horse.yBodyRot = newYRot + steering/2;
-            horse.yHeadRot = newYRot + steering;   // Kopf = Körper + Lenkwinkel
-            horse.setXRot(0F);
-            horse.setIsJumping(false);
-            horse.setTemper(0);
+            horse.yHeadRot = newYRot + steering;
             horse.setSpeed(speed);
         }
 
-        setDeltaMovement(
-                Kalkuel.calculateMotionX(speed, newYRot),
-                getDeltaMovement().y,
-                Kalkuel.calculateMotionZ(speed, newYRot)
-        );
+        setDeltaMovement(Kalkuel.calculateMotionX(speed, newYRot), getDeltaMovement().y, Kalkuel.calculateMotionZ(speed, newYRot));
     }
 
     // ─── PASSENGERS ───────────────────────────────────────────────────────────
@@ -218,11 +196,6 @@ public class SmallHorseCartEntity extends AbstractInventoryVehicleEntity {
         if (entity instanceof AbstractHorse) return !hasAttachedHorse();
         if (entity instanceof Player)        return getPassengers().stream().noneMatch(e -> e instanceof Player);
         return false;
-    }
-
-    @Override
-    public boolean shouldRiderSit() {
-        return true;
     }
 
     @Override

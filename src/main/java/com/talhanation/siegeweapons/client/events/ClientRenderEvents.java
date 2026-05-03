@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.player.Player;
@@ -35,42 +36,6 @@ public class ClientRenderEvents {
         if (Minecraft.getInstance().player.getVehicle() instanceof BallistaEntity ballista && ballista.getShowTrajectory()) {
             event.setCanceled(true);
         }
-    }
-
-    // ─── HORSE: Animation + Kopf-Rotation ─────────────────────────────────────
-    //
-    // RenderLivingEvent.Pre läuft direkt vor dem Pferd-Renderer → letzter Moment
-    // vor renderToBuffer(). Alle vorherigen Tick-basierten Versuche scheiterten,
-    // weil LivingEntity.updateWalkAnimation() danach mit onGround=false den Wert
-    // auf 0 zurücksetzte. Hier sind wir definitiv nach allen Ticks.
-    //
-    // Drei Dinge werden gesetzt:
-    //  1. walkAnimation  → Laufanimation der Pferde-Beine (Geschwindigkeit aus cart.getSpeed())
-    //  2. yBodyRot       → Pferdekörper zeigt in Cart-Richtung
-    //  3. yHeadRot       → Pferdekopf = Körper + steeringAngle (sichtbarer Lenkindikator)
-    @SuppressWarnings("rawtypes")
-    @SubscribeEvent
-    @OnlyIn(Dist.CLIENT)
-    public void onRenderLivingPre(RenderLivingEvent.Pre event) {
-        if (!(event.getEntity() instanceof AbstractHorse horse)) return;
-        if (!(horse.getVehicle() instanceof SmallHorseCartEntity cart)) return;
-
-        float cartSpeed    = Math.abs(cart.getSpeed());
-        float steeringAngle = cart.getSteeringAngle();
-        float cartYaw      = cart.getYRot();
-
-        // 1. Laufanimation: normiert auf Maxspeed des Carts (≈ 0.174 Blöcke/Tick)
-        float animSpeed = cartSpeed > 0.005F
-                ? Math.min(cartSpeed * 5.75F, 1.0F)
-                : 0F;
-        horse.walkAnimation.update(1.0F, animSpeed);
-
-        // 2. Körper: immer in Cart-Richtung
-        horse.yBodyRot = cartYaw;
-
-        // 3. Kopf: zeigt in Lenkrichtung – je stärker gelenkt wird, desto mehr
-        //    dreht sich der Kopf (steeringAngle ist –30…+30, wird 1:1 als Grad-Offset genutzt)
-        horse.yHeadRot = cartYaw + steeringAngle;
     }
 
     // ─── MOUNT TIPS ───────────────────────────────────────────────────────────
